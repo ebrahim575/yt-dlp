@@ -43,6 +43,10 @@ def download_mp4():
         'progress_hooks': [download_done],
         'embed_thumbnail': True,
     }
+
+    # if "x.com" in url:
+    #     download_options['cookiesfrombrowser'] = 'chrome'
+
     download_video(url, download_options)
 
 # Create the main window
