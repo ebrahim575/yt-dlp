@@ -1,12 +1,56 @@
-# Ebrahim's yt-dlp
+# YouTube Downloader GUI
 
-## How to set up
-1. Open this project in pycharm or your editor of choice.
-2. Install homebrew by running the following script : <br>```/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"```<br>in terminal app.
-2. Run [setup.py](setup.py) by running ```python3 setup.py``` in the terminal built into pycharm. <br><br>See image below.<br><br><img src="terminal location.png" alt="image of computer screen" width="500"/><br><br>
-3. [Change this variable on line 19 to the path where you want your mp3 / mp4 files to be stored.<br>```'outtmpl': '/Users/ezulq/Library/Mobile Documents/com~apple~CloudDocs/youtube-dl/%(title)s.%(ext)s'```](yt-dlp-gui.py)
-4. Copy the ```dist/yt-dlp-gui``` app to wherever you want to keep it.
-5. Done.
+A simple desktop app to download YouTube videos as MP3 or MP4 files, automatically saved to iCloud.
 
+## 🚀 Quick Start
 
+1. Install Python 3 from [python.org](https://www.python.org/downloads/)
+2. Download this app (Code → Download ZIP)
+3. Open Terminal (`Command + Space`, type "Terminal")
+4. Run these commands:
+   ```bash
+   cd Downloads/yt-dlp
+   python3 update.py
+   python3 yt-dlp-gui.py
+   ```
 
+## 📱 How to Use
+
+1. Copy any video URL
+2. Paste into app
+3. Click "YouTube to MP3" or "YouTube to MP4"
+4. Click "Open File" when complete
+
+## 📂 Downloads
+Find files in: `iCloud Drive/youtube-dl/`
+
+## ⚠️ Issues?
+Run this to fix most problems:
+```bash
+python3 update.py
+```
+
+## 🔍 Works With
+- YouTube
+- Twitter/X
+- Instagram
+- TikTok
+- And more!
+
+## 💡 Features
+- Best quality downloads
+- Album art for MP3s
+- iCloud sync
+- No ads or tracking
+
+## 📝 Needs
+- macOS
+- Python 3
+- Internet
+- iCloud Drive
+
+## ⚖️ Legal
+Only download content you have permission to use.
+
+---
+Made with ❤️ for easy downloads

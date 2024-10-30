@@ -1,41 +1,57 @@
 import os
 import subprocess
 import sys
+import venv
+import platform
 
-
-def install_requirements():
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"])
-
-def get_username():
-    username = os.environ.get('USER')
-    print(f"Current user: {username}")
-    return username
+def run_command(command):
+    try:
+        subprocess.run(command, check=True, shell=True)
+    except subprocess.CalledProcessError as e:
+        print(f"Error executing command: {command}")
+        print(f"Error message: {e}")
+        sys.exit(1)
 
 def main():
-    # Check if Homebrew is installed
-    if subprocess.call(["which", "brew"]) != 0:
-        print("Homebrew is not installed. Please install Homebrew first.")
-        print("Use the following script to install homebrew : '/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\"\'")
-        print('Then run this file again.')
-        return
+    print("Setting up YouTube Downloader...")
 
-    # Update Homebrew
-    print("Updating Homebrew...")
-    subprocess.check_call(["brew", "update"])
+    # Detect OS
+    is_windows = platform.system() == "Windows"
+    is_mac = platform.system() == "Darwin"
 
-    # Install Python and pip if not already installed
-    print("Installing Python and pip...")
-    subprocess.check_call(["brew", "install", "python"])
+    if not (is_windows or is_mac):
+        print("This application only supports Windows and macOS")
+        sys.exit(1)
 
-    # Install ffmpeg
-    print("Installing ffmpeg...")
-    subprocess.check_call(["brew", "install", "ffmpeg"])
+    # Create virtual environment
+    venv.create("venv", with_pip=True)
 
-    # Install Python libraries from requirements.txt
-    print("Installing Python libraries...")
-    install_requirements()
+    # Determine the path to the virtual environment's Python executable
+    if is_windows:
+        venv_python = os.path.join("venv", "Scripts", "python.exe")
+    else:
+        venv_python = os.path.join("venv", "bin", "python")
 
-    print("Setup complete!")
+    # Upgrade pip
+    run_command(f"{venv_python} -m pip install --upgrade pip")
+
+    # Install required packages
+    run_command(f"{venv_python} -m pip install yt-dlp ffmpeg-python")
+    
+    # Install OS-specific packages
+    if is_windows:
+        run_command(f"{venv_python} -m pip install pywin32")
+    else:
+        run_command(f"{venv_python} -m pip install pyobjc-framework-Cocoa")
+
+    print("\nSetup completed successfully!")
+    print("\nTo run the application:")
+    if is_windows:
+        print("1. Activate the virtual environment: venv\\Scripts\\activate")
+        print("2. Run the application: python yt-dlp-gui-windows.py")
+    else:
+        print("1. Activate the virtual environment: source venv/bin/activate")
+        print("2. Run the application: python yt-dlp-gui-mac.py")
 
 if __name__ == "__main__":
     main()
