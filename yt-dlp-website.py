@@ -1,4 +1,4 @@
-from flask import Flask, render_template_string, request, jsonify, send_file, send_from_directory
+from flask import Flask, render_template_string, request, jsonify, send_file, send_from_directory, session, redirect, url_for
 from yt_dlp import YoutubeDL
 import os
 import re
@@ -459,187 +459,191 @@ def download_video(url, format_type):
 def login():
     if request.method == 'POST':
         if request.form.get('password') == PASSWORD:
+            # Create a unique session for this user
+            session['authenticated'] = True
             return jsonify({'success': True})
         return jsonify({'success': False})
     
-    # Simple login page HTML
-    return render_template_string('''
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Login</title>
-            <style>
-                /* SF Pro Font Import */
-                @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600&display=swap');
+    # Check if THIS user is authenticated
+    if not session.get('authenticated'):
+        return render_template_string('''
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Login</title>
+                <style>
+                    /* SF Pro Font Import */
+                    @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600&display=swap');
 
-                /* Reset & Base Styles */
-                * {
-                    margin: 0;
-                    padding: 0;
-                    box-sizing: border-box;
-                }
-
-                body {
-                    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
-                    background-color: #000000;
-                    color: #f5f5f7;
-                    line-height: 1.47059;
-                    font-weight: 400;
-                    letter-spacing: -.022em;
-                    min-height: 100vh;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                }
-
-                /* Main Container */
-                .container {
-                    width: 90%;
-                    max-width: 600px;
-                    padding: 2.5rem;
-                    background: #1d1d1f;
-                    border-radius: 18px;
-                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-                }
-
-                /* Typography */
-                h1 {
-                    font-size: 40px;
-                    line-height: 1.1;
-                    font-weight: 600;
-                    letter-spacing: 0;
-                    margin-bottom: 2rem;
-                    text-align: center;
-                    color: #f5f5f7;
-                }
-
-                /* Form Elements */
-                .input-group {
-                    margin-bottom: 1.5rem;
-                }
-
-                input[type="password"] {
-                    width: 100%;
-                    padding: 12px 16px;
-                    font-size: 17px;
-                    border: 1px solid #424245;
-                    border-radius: 12px;
-                    outline: none;
-                    transition: all 0.3s ease;
-                    background-color: #2d2d2d;
-                    color: #f5f5f7;
-                }
-
-                input[type="password"]::placeholder {
-                    color: #86868b;
-                }
-
-                input[type="password"]:focus {
-                    border-color: #0071e3;
-                    box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.3);
-                }
-
-                /* Buttons */
-                .button-group {
-                    display: flex;
-                    gap: 1rem;
-                    justify-content: center;
-                    margin-top: 2rem;
-                }
-
-                button {
-                    background-color: #0071e3;
-                    color: #ffffff;
-                    border: none;
-                    padding: 12px 24px;
-                    border-radius: 12px;
-                    font-size: 17px;
-                    font-weight: 400;
-                    cursor: pointer;
-                    transition: all 0.2s ease;
-                    min-width: 140px;
-                }
-
-                button:hover {
-                    background-color: #0077ed;
-                    transform: scale(1.02);
-                }
-
-                button:active {
-                    transform: scale(0.98);
-                }
-
-                /* Status Message */
-                #status {
-                    margin-top: 2rem;
-                    text-align: center;
-                    font-size: 17px;
-                    color: #f5f5f7;
-                    min-height: 24px;
-                }
-
-                /* Responsive Design */
-                @media (max-width: 768px) {
-                    .container {
-                        width: 95%;
-                        padding: 1.5rem;
+                    /* Reset & Base Styles */
+                    * {
+                        margin: 0;
+                        padding: 0;
+                        box-sizing: border-box;
                     }
 
+                    body {
+                        font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+                        background-color: #000000;
+                        color: #f5f5f7;
+                        line-height: 1.47059;
+                        font-weight: 400;
+                        letter-spacing: -.022em;
+                        min-height: 100vh;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                    }
+
+                    /* Main Container */
+                    .container {
+                        width: 90%;
+                        max-width: 600px;
+                        padding: 2.5rem;
+                        background: #1d1d1f;
+                        border-radius: 18px;
+                        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+                    }
+
+                    /* Typography */
                     h1 {
-                        font-size: 32px;
+                        font-size: 40px;
+                        line-height: 1.1;
+                        font-weight: 600;
+                        letter-spacing: 0;
+                        margin-bottom: 2rem;
+                        text-align: center;
+                        color: #f5f5f7;
+                    }
+
+                    /* Form Elements */
+                    .input-group {
+                        margin-bottom: 1.5rem;
+                    }
+
+                    input[type="text"] {
+                        width: 100%;
+                        padding: 12px 16px;
+                        font-size: 17px;
+                        border: 1px solid #424245;
+                        border-radius: 12px;
+                        outline: none;
+                        transition: all 0.3s ease;
+                        background-color: #2d2d2d;
+                        color: #f5f5f7;
+                    }
+
+                    input[type="text"]::placeholder {
+                        color: #86868b;
+                    }
+
+                    input[type="text"]:focus {
+                        border-color: #0071e3;
+                        box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.3);
+                    }
+
+                    /* Buttons */
+                    .button-group {
+                        display: flex;
+                        gap: 1rem;
+                        justify-content: center;
+                        margin-top: 2rem;
                     }
 
                     button {
-                        width: 100%;
+                        background-color: #0071e3;
+                        color: #ffffff;
+                        border: none;
+                        padding: 12px 24px;
+                        border-radius: 12px;
+                        font-size: 17px;
+                        font-weight: 400;
+                        cursor: pointer;
+                        transition: all 0.2s ease;
+                        min-width: 140px;
                     }
-                }
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <h1>Yt-dlp</h1>
-                <div class="input-group">
-                    <input type="password" id="password" placeholder="Enter password" autocomplete="off">
+
+                    button:hover {
+                        background-color: #0077ed;
+                        transform: scale(1.02);
+                    }
+
+                    button:active {
+                        transform: scale(0.98);
+                    }
+
+                    /* Status Message */
+                    #status {
+                        margin-top: 2rem;
+                        text-align: center;
+                        font-size: 17px;
+                        color: #f5f5f7;
+                        min-height: 24px;
+                    }
+
+                    /* Responsive Design */
+                    @media (max-width: 768px) {
+                        .container {
+                            width: 95%;
+                            padding: 1.5rem;
+                        }
+
+                        h1 {
+                            font-size: 32px;
+                        }
+
+                        button {
+                            width: 100%;
+                        }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <h1>Yt-dlp</h1>
+                    <div class="input-group">
+                        <input type="text" id="password" placeholder="Enter password" autocomplete="off">
+                    </div>
+                    <div class="button-group">
+                        <button onclick="login()">Login</button>
+                    </div>
+                    <div id="status"></div>
                 </div>
-                <div class="button-group">
-                    <button onclick="login()">Login</button>
-                </div>
-                <div id="status"></div>
-            </div>
-            <script>
-                function login() {
-                    const password = document.getElementById('password').value;
-                    const status = document.getElementById('status');
-                    
-                    fetch('/login', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                        },
-                        body: `password=${encodeURIComponent(password)}`
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            window.location.href = '/app';
-                        } else {
-                            status.textContent = 'Invalid password';
+                <script>
+                    function login() {
+                        const password = document.getElementById('password').value;
+                        const status = document.getElementById('status');
+                        
+                        fetch('/login', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                            },
+                            body: `password=${encodeURIComponent(password)}`
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                window.location.href = '/app';
+                            } else {
+                                status.textContent = 'Invalid password';
+                            }
+                        });
+                    }
+
+                    // Add enter key support
+                    document.getElementById('password').addEventListener('keypress', function(e) {
+                        if (e.key === 'Enter') {
+                            login();
                         }
                     });
-                }
-
-                // Add enter key support
-                document.getElementById('password').addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') {
-                        login();
-                    }
-                });
-            </script>
-        </body>
-        </html>
-    ''')
+                </script>
+            </body>
+            </html>
+        ''')
+    return redirect(url_for('app_route'))
 
 @app.route('/')
 def index():
@@ -651,6 +655,8 @@ def index():
 
 @app.route('/app')
 def app_route():
+    if not session.get('authenticated'):
+        return redirect(url_for('login'))
     return render_template_string(HTML_TEMPLATE)
 
 @app.route('/download', methods=['POST'])
@@ -677,6 +683,15 @@ def favicon():
 def apple_touch_icon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
                              'apple-touch-icon.png', mimetype='image/png')
+
+# Add a secret key for session management (near the top of your file)
+app.secret_key = os.urandom(24)  # Generate a random key
+
+# Optional: Add a logout route
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('login'))
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001, debug=True)
