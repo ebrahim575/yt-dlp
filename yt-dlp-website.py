@@ -52,7 +52,6 @@ def get_console_output():
         return jsonify({'output': ''})
     
     with output_lock:
-        # Only get new output since last request
         new_output = output_buffer[last_output_index:]
         last_output_index = len(output_buffer)
         output = '\n'.join(new_output) if new_output else ''
@@ -398,28 +397,9 @@ HTML_TEMPLATE = '''
 # Global variables
 MAX_FILENAME_LENGTH = 200
 
-def get_username():
-    try:
-        # macOS specific username retrieval
-        username = os.environ.get('USER')
-        if not username:
-            home = os.path.expanduser('~')
-            username = home.split('/')[-1]
-        return username
-    except:
-        return None
-
-def get_icloud_folder():
-    username = get_username()
-    if not username:
-        raise Exception("Could not determine username")
-    
-    folder_path = f'/Users/{username}/Library/Mobile Documents/com~apple~CloudDocs/youtube-dl'
-    os.makedirs(folder_path, exist_ok=True)
-    return folder_path
 
 def download_video(url, format_type):
-    output_folder = get_icloud_folder()
+    output_folder = '/Users/ezulq/Library/Mobile Documents/com~apple~CloudDocs/youtube-dl/master folder'
     
     if format_type == 'mp3':
         download_options = {
@@ -429,8 +409,8 @@ def download_video(url, format_type):
             'embedthumbnail': True,
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
-                'preferredcodec': 'mp3',  # Convert to MP3
-                'preferredquality': '320'  # Highest quality for MP3
+                'preferredcodec': 'mp3',
+                'preferredquality': '320'
             },
             {
                 'key': 'EmbedThumbnail',
@@ -453,7 +433,7 @@ def download_video(url, format_type):
             ydl.download([url])
         return True
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"Error during download: {e}")  # Improved error handling
         return False
 
 @app.route('/login', methods=['GET', 'POST'])
