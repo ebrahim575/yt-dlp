@@ -420,16 +420,17 @@ def get_icloud_folder():
 
 def download_video(url, format_type):
     output_folder = get_icloud_folder()
+    
     if format_type == 'mp3':
         download_options = {
-            'format': 'bestaudio[ext=m4a]/bestaudio/best',
+            'format': 'bestaudio/best',  # Download the best audio available
             'outtmpl': f'{output_folder}/%(title).{MAX_FILENAME_LENGTH}s.%(ext)s',
             'writethumbnail': True,
             'embedthumbnail': True,
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
-                'preferredcodec': 'mp3',
-                'preferredquality': '192'
+                'preferredcodec': 'mp3',  # Convert to MP3
+                'preferredquality': '320'  # Highest quality for MP3
             },
             {
                 'key': 'EmbedThumbnail',
